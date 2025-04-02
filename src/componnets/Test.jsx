@@ -100,68 +100,75 @@ const handleFormFocus = (id) => {
   }
 
   const Calcule = (id) => {
-    const form = formState[id]
-    if (!form) return
+    const form = formState[id];
+    if (!form) return;
 
     if (form.selectedCategory === "labrik") {
-      const item = data.labrik.find((item) => item.id === form.selectedItem)
-      if (item && item.numPleta !== 0) {
-        const QuntitiCharjerNum = Number(form.QuntitiCharjer)
-        const NbrQtPlaeta_real = QuntitiCharjerNum / item.numPleta;
+        const item = data.labrik.find((item) => item.id === form.selectedItem);
+        if (item && item.numPleta !== 0) {
+            const QuntitiCharjerNum = Number(form.QuntitiCharjer);
+            const NbrQtPlaeta_real = QuntitiCharjerNum / item.numPleta;
 
-        const NbrQtPlaeta = 0;
-        
-        if (NbrQtPlaeta_real % 1 === 0) {
-          // If NbrQtPlaeta_real is a whole number, use it directly
-          NbrQtPlaeta = NbrQtPlaeta_real;
-        } else {
-          // If it's not a whole number, round up or down accordingly
-          NbrQtPlaeta = NbrQtPlaeta_real >= 0.5 ? Math.ceil(NbrQtPlaeta_real) : Math.floor(NbrQtPlaeta_real);
+            let NbrQtPlaeta;
+            
+            // Apply rounding logic
+            if (NbrQtPlaeta_real % 1 === 0) {
+                NbrQtPlaeta = NbrQtPlaeta_real;
+            } else {
+                const decimalPart = NbrQtPlaeta_real % 1;
+                NbrQtPlaeta = decimalPart >= 0.6 ? Math.ceil(NbrQtPlaeta_real) : Math.floor(NbrQtPlaeta_real);
+            }
+
+            NbrQtPlaeta = Math.min(10, NbrQtPlaeta); // Ensure it doesn't exceed 10
+
+            // Additional Calculations
+            const Qantiticharji_Na9is_QtAdition = NbrQtPlaeta * item.numPleta;
+            const QtAdition = QuntitiCharjerNum - Qantiticharji_Na9is_QtAdition;
+            const PrixQTCharjer = QuntitiCharjerNum * item.prix;
+            const PrixQtAdition = parseFloat((QtAdition * item.prix).toFixed(3));
+            const PrixQtAdition_Absolute = parseFloat(Math.abs(QtAdition * item.prix).toFixed(3));
+            const TotalPrix = PrixQTCharjer + PrixQtAdition_Absolute;
+
+            // Update form state
+            updateFormState(id, {
+                NbrQtPlaeta_real,
+                NbrQtPlaeta,
+                QtAdition,
+                PrixQTCharjer,
+                PrixQtAdition,
+                TotalPrix,
+                Qantiticharji_Na9is_QtAdition,
+                PrixQtAdition_Absolute,
+            });
         }
-        
-        NbrQtPlaeta = Math.min(10, NbrQtPlaeta); 
-        const Qantiticharji_Na9is_QtAdition = NbrQtPlaeta * item.numPleta
-        const QtAdition = QuntitiCharjerNum - Qantiticharji_Na9is_QtAdition
-        const PrixQTCharjer = QuntitiCharjerNum * item.prix
-        const PrixQtAdition = parseFloat((QtAdition * item.prix).toFixed(3));
-        const PrixQtAdition_Absolute = parseFloat(Math.abs(QtAdition * item.prix).toFixed(3));
-        const TotalPrix = PrixQTCharjer + PrixQtAdition_Absolute
+    }
 
-        updateFormState(id, {
-          NbrQtPlaeta_real,
-          NbrQtPlaeta,
-          QtAdition,
-          PrixQTCharjer,
-          PrixQtAdition,
-          TotalPrix,
-          Qantiticharji_Na9is_QtAdition,
-          PrixQtAdition_Absolute,
-        })
-      }
-    }
     if (form.selectedCategory === "sima") {
-      const item = data.sima.find((item) => item.id === form.selectedItem)
-      if (item) {
-        const QuntitiCharjerNum = Number(form.QuntitiCharjer)
-        const PrixQTCharjerSima = QuntitiCharjerNum * item.prix
-        updateFormState(id, {
-          PrixQTCharjerSima,
-          TotalPrix: PrixQTCharjerSima,
-        })
-      }
+        const item = data.sima.find((item) => item.id === form.selectedItem);
+        if (item) {
+            const QuntitiCharjerNum = Number(form.QuntitiCharjer);
+            const PrixQTCharjerSima = QuntitiCharjerNum * item.prix;
+            updateFormState(id, {
+                PrixQTCharjerSima,
+                TotalPrix: PrixQTCharjerSima,
+            });
+        }
     }
+
     if (form.selectedCategory === "lhdid") {
-      const item = data.lhdid.find((item) => item.id === form.selectedItem)
-      if (item) {
-        const QuntitiCharjerNum = Number(form.QuntitiCharjer)
-        const PrixQTCharjerLhdid = QuntitiCharjerNum/100 * item.prix
-        updateFormState(id, {
-          PrixQTCharjerLhdid,
-          TotalPrix: PrixQTCharjerLhdid,
-        })
-      }
+        const item = data.lhdid.find((item) => item.id === form.selectedItem);
+        if (item) {
+            const QuntitiCharjerNum = Number(form.QuntitiCharjer);
+            const PrixQTCharjerLhdid = (QuntitiCharjerNum / 100) * item.prix;
+            updateFormState(id, {
+                PrixQTCharjerLhdid,
+                TotalPrix: PrixQTCharjerLhdid,
+            });
+        }
     }
-  }
+};
+
+
 
   // Calculate total of all forms
   const totalAPayer = Object.values(formState).reduce((sum, form) => sum + (form.TotalPrix || 0), 0)
