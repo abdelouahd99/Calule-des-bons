@@ -1,4 +1,4 @@
-"use client"
+
 
 import { useState } from "react"
 
@@ -11,10 +11,10 @@ export default function Test() {
     ],
     sima: [
       { id: "Ton", name: "Ton", prix: 10 },
-      { id: "khnachi", name: "Khnachi", prix: 40 },
+      { id: "khnachi", name: "Khnachi", prix: 0.1 },
     ],
     lhdid: [
-      { id: "lhdid", name: "All_Type", prix: 25 },
+      { id: "lhdid", name: "All_Type", prix: 0.5 },
     
     ],
   }
@@ -56,6 +56,7 @@ const handleFormFocus = (id) => {
         TotalPrix: 0,
       },
     }))
+    document.getElementById('divplus').style.display="block"
   }
 
   const removeForm = (id) => {
@@ -106,8 +107,19 @@ const handleFormFocus = (id) => {
       const item = data.labrik.find((item) => item.id === form.selectedItem)
       if (item && item.numPleta !== 0) {
         const QuntitiCharjerNum = Number(form.QuntitiCharjer)
-        const NbrQtPlaeta_real = QuntitiCharjerNum / item.numPleta
-        const NbrQtPlaeta = Math.min(10, Math.round(QuntitiCharjerNum / item.numPleta))
+        const NbrQtPlaeta_real = QuntitiCharjerNum / item.numPleta;
+
+        const NbrQtPlaeta = 0;
+        
+        if (NbrQtPlaeta_real % 1 === 0) {
+          // If NbrQtPlaeta_real is a whole number, use it directly
+          NbrQtPlaeta = NbrQtPlaeta_real;
+        } else {
+          // If it's not a whole number, round up or down accordingly
+          NbrQtPlaeta = NbrQtPlaeta_real >= 0.5 ? Math.ceil(NbrQtPlaeta_real) : Math.floor(NbrQtPlaeta_real);
+        }
+        
+        NbrQtPlaeta = Math.min(10, NbrQtPlaeta); 
         const Qantiticharji_Na9is_QtAdition = NbrQtPlaeta * item.numPleta
         const QtAdition = QuntitiCharjerNum - Qantiticharji_Na9is_QtAdition
         const PrixQTCharjer = QuntitiCharjerNum * item.prix
@@ -205,7 +217,7 @@ const handleFormFocus = (id) => {
                 <div className="col-md-4">
                   <label className="form-label fw-bold text-dark">Category</label>
                   <select
-                    className="form-select form-select-lg border-primary"
+                    className="form-select fw-bold py-2 border-primary"
                     value={formState[form.id]?.selectedCategory || ""}
                     onChange={(e) => {
                       updateFormState(form.id, {
@@ -224,9 +236,9 @@ const handleFormFocus = (id) => {
 
                 {/* Select Item */}
                 <div className="col-md-4">
-                  <label className="form-label fw-bold text-dark">Item</label>
+                  <label className="itemmm form-label  fw-bold text-dark">Item</label>
                   <select
-                    className="form-select form-select-lg border-primary"
+                    className="form-select fw-bold border-primary py-2"
                     value={formState[form.id]?.selectedItem || ""}
                     onChange={(e) => updateFormState(form.id, { selectedItem: e.target.value })}
                     disabled={!formState[form.id]?.selectedCategory}
@@ -240,12 +252,12 @@ const handleFormFocus = (id) => {
                       ))}
                   </select>
                 </div>
-                <div className="col-md-2">
+                <div className="col-md-3">
                   <label className="form-label fw-bold text-dark">Quantity</label>
                   <input
                     type="number"
-                    placeholder="Entre Qauntity..."
-                    className="form-control form-control-lg border-primary"
+                    placeholder="Entre Qauntity ..."
+                    className="form-control py-2 fw-bold border-primary"
                     value={formState[form.id]?.QuntitiCharjer }
                     onChange={(e) => updateFormState(form.id, { QuntitiCharjer: e.target.value })}
                   />
@@ -339,10 +351,21 @@ const handleFormFocus = (id) => {
                   </div>
                 </div>
               )}
+              
             </div>
+            <div className="d-flex justify-content-center align-items-center" id="divplus" style={{ display: "none" }}>
+                <span className="badge bg-danger fs-4  ">+</span>
+                </div>
+                            
           </div>
+          
+          
         ))}
+        
+      
+
         <hr />
+       
 
         {/* Total à Payer Section */}
         {totalAPayer > 0 && (
