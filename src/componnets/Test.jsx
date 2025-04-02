@@ -34,10 +34,13 @@ const handleFormFocus = (id) => {
     setActiveFormId(id);
 };
 
-  const addNewForm = () => {
-    const newId = forms.length > 0 ? Math.max(...forms.map((f) => f.id)) + 1 : 1
-    setForms([...forms, { id: newId }])
-
+const addNewForm = () => {
+    const newId = forms.length > 0 ? Math.max(...forms.map((f) => f.id)) + 1 : 1;
+    
+    // Add new form to the state
+    setForms([...forms, { id: newId }]);
+  
+    // Update form state with default values for the new form
     setFormState((prev) => ({
       ...prev,
       [newId]: {
@@ -55,9 +58,20 @@ const handleFormFocus = (id) => {
         PrixQtAdition_Absolute: "",
         TotalPrix: 0,
       },
-    }))
-    document.getElementById('divplus').style.display="block"
+    }));
+  
+    // Display the div plus
+    document.getElementById('divplus').style.display = "block";
+  
+    // Automatically scroll to the newly added form
+    setTimeout(() => {
+      const newFormElement = document.getElementById(`form-${newId}`);
+      if (newFormElement) {
+        newFormElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100); // Timeout to ensure the new form is added before scrolling
   }
+  
 
   const removeForm = (id) => {
     if (forms.length <= 1) return
@@ -102,6 +116,7 @@ const handleFormFocus = (id) => {
   const Calcule = (id) => {
     const form = formState[id];
     if (!form) return;
+     // Handle Enter key press
 
     if (form.selectedCategory === "labrik") {
         const item = data.labrik.find((item) => item.id === form.selectedItem);
@@ -167,6 +182,10 @@ const handleFormFocus = (id) => {
         }
     }
 };
+// Function to handle Enter key press
+
+
+  
 
 
 
@@ -198,7 +217,7 @@ const handleFormFocus = (id) => {
         {/* Forms */}
         <hr />
         {forms.map((form) => (
-          <div key={form.id}className={`card shadow-sm mb-4 ${activeFormId === form.id ? 'border-dark border-4' : ''}`}
+          <div key={form.id} id={`form-${form.id}`} className={`card shadow-sm mb-4 ${activeFormId === form.id ? 'border-dark border-4' : ''}`}
           onMouseEnter={() => handleFormMouseEnter(form.id)}
           onMouseLeave={handleFormMouseLeave}
       >
@@ -262,21 +281,26 @@ const handleFormFocus = (id) => {
                 <div className="col-md-3">
                   <label className="form-label fw-bold text-dark">Quantity</label>
                   <input
-                    type="number"
-                    placeholder="Entre Qauntity ..."
-                    className="form-control py-2 fw-bold border-primary"
-                    value={formState[form.id]?.QuntitiCharjer }
-                    onChange={(e) => updateFormState(form.id, { QuntitiCharjer: e.target.value })}
-                  />
+  type="number"
+  placeholder="Enter Quantity ..."
+  className="form-control py-2 fw-bold border-primary"
+  value={formState[form.id]?.QuntitiCharjer}
+  onChange={(e) => updateFormState(form.id, { QuntitiCharjer: e.target.value })}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      Calcule(form.id); // Trigger calculation
+    }
+  }}
+/>
                 </div>
               </div>
 
               {/* Calculate Button */}
               <div className="mt-3">
                 <button className="btn btn-primary btn-lg w-100 fw-bold" onClick={() => Calcule(form.id)}>
-                  <i className="bi bi-calculator me-1"></i> Calculate
+                <i className="bi bi-calculator me-1"></i> Calculate
                 </button>
-              </div>
+            </div>
 
               {/* Results Section */}
               {formState[form.id]?.selectedCategory && formState[form.id]?.TotalPrix > 0 && (
